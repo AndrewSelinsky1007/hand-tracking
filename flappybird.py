@@ -1,11 +1,10 @@
-import pygame
-from sys import exit
-import random
-import math
-from hand_tracker import HandTracker  
-
 import os
 import sys
+import random
+import math
+import pygame
+from sys import exit
+from hand_tracker import HandTracker  
 
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -15,19 +14,6 @@ def get_resource_path(relative_path):
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
-
-# --- 4. SCALED GAME IMAGES ---
-background_image = pygame.image.load(get_resource_path("flappybirdbg.png"))
-background_image = pygame.transform.scale(background_image, (GAME_WIDTH, GAME_HEIGHT))
-
-bird_image = pygame.image.load(get_resource_path("flappybird.png"))
-bird_image = pygame.transform.scale(bird_image, (bird_width, bird_height))
-
-top_pipe_image = pygame.image.load(get_resource_path("toppipe.png"))
-top_pipe_image = pygame.transform.scale(top_pipe_image, (pipe_width, pipe_height))
-
-bottom_pipe_image = pygame.image.load(get_resource_path("bottompipe.png"))
-bottom_pipe_image = pygame.transform.scale(bottom_pipe_image, (pipe_width, pipe_height))
 
 # --- 1. SCALED GAME VARIABLES ---
 GAME_WIDTH = 1280
@@ -59,16 +45,16 @@ class Pipe(pygame.Rect):
         self.passed = False
 
 # --- 4. SCALED GAME IMAGES ---
-background_image = pygame.image.load("flappybirdbg.png")
+background_image = pygame.image.load(get_resource_path("flappybirdbg.png"))
 background_image = pygame.transform.scale(background_image, (GAME_WIDTH, GAME_HEIGHT))
 
-bird_image = pygame.image.load("flappybird.png")
+bird_image = pygame.image.load(get_resource_path("flappybird.png"))
 bird_image = pygame.transform.scale(bird_image, (bird_width, bird_height))
 
-top_pipe_image = pygame.image.load("toppipe.png")
+top_pipe_image = pygame.image.load(get_resource_path("toppipe.png"))
 top_pipe_image = pygame.transform.scale(top_pipe_image, (pipe_width, pipe_height))
 
-bottom_pipe_image = pygame.image.load("bottompipe.png")
+bottom_pipe_image = pygame.image.load(get_resource_path("bottompipe.png"))
 bottom_pipe_image = pygame.transform.scale(bottom_pipe_image, (pipe_width, pipe_height))
 
 # --- 5. INITIALIZE ENTITIES & TRACKER ---
@@ -77,10 +63,10 @@ pipes = []
 PIPE_SPEED = -5    
 gravity = 0.6
 game_over = False
-game_started = False  # <--- NEW: Controls the pre-round waiting state
+game_started = False  # Controls the pre-round waiting state
 hit_cooldown = 0  
 
-# --- NEW: SCORING & COMBO VARIABLES ---
+# --- SCORING & COMBO VARIABLES ---
 score = 0
 high_score = 0
 pending_score = 0
@@ -148,7 +134,7 @@ def draw():
             start_surf = text_font.render(start_str, True, "white")
             draw_text_outlined(window, start_str, text_font, "white", "black", GAME_WIDTH // 2 - start_surf.get_width() // 2, GAME_HEIGHT // 2 + 100)
         
-        # 3. Pending Score & Persistent Combo Display
+        # Pending Score & Persistent Combo Display
         elif display_combo_pipes >= 2:
             time_ms = pygame.time.get_ticks()
             flash_factor = (math.sin(time_ms * 0.015) + 1) / 2  
