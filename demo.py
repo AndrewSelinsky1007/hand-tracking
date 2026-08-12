@@ -31,10 +31,10 @@ if sys.platform.startswith('linux'):
     cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 else:
-    # Test default MSMF first, then fallback to DirectShow
-    backends = [cv2.CAP_ANY, cv2.CAP_DSHOW] if sys.platform == 'win32' else [cv2.CAP_ANY]
+    # Include MSMF (crucial for modern 2-in-1 arrays) and scan deeper indices
+    backends = [cv2.CAP_ANY, cv2.CAP_MSMF, cv2.CAP_DSHOW] if sys.platform == 'win32' else [cv2.CAP_ANY]
     
-    for i in range(3):
+    for i in range(6):  # Check indices 0 through 5
         for backend in backends:
             temp_cap = cv2.VideoCapture(i, backend)
             if temp_cap.isOpened():
