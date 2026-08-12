@@ -15,7 +15,7 @@ def get_resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
-# --- 1. SCALED GAME VARIABLES ---
+# --- 1. SCALED GAME VARIABLES ----
 GAME_WIDTH = 1280
 GAME_HEIGHT = 720
 
