@@ -31,16 +31,21 @@ if sys.platform.startswith('linux'):
     cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 else:
-    # Scan indices 0, 1, and 2 to bypass dead virtual cameras
+    # Test default MSMF first, then fallback to DirectShow
+    backends = [cv2.CAP_ANY, cv2.CAP_DSHOW] if sys.platform == 'win32' else [cv2.CAP_ANY]
+    
     for i in range(3):
-        temp_cap = cv2.VideoCapture(i, cv2.CAP_DSHOW) if sys.platform == 'win32' else cv2.VideoCapture(i)
-        if temp_cap.isOpened():
-            ret, _ = temp_cap.read()
-            if ret:
-                cap = temp_cap
-                print(f"Success: Connected to camera index {i}")
-                break
-        temp_cap.release()
+        for backend in backends:
+            temp_cap = cv2.VideoCapture(i, backend)
+            if temp_cap.isOpened():
+                ret, _ = temp_cap.read()
+                if ret:
+                    cap = temp_cap
+                    print(f"Success: Connected to camera {i} with backend {backend}")
+                    break
+            temp_cap.release()
+        if cap is not None:
+            break
 
 if cap is None or not cap.isOpened():
     print("CRITICAL ERROR: Could not find any working cameras!")
