@@ -24,14 +24,16 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hand Tracking")
 clock = pygame.time.Clock()
 
-# Camera setup using V4L2 and MJPEG
 # Smart Camera Setup
 if sys.platform.startswith('linux'):
-    # Safe settings for WSL / Linux (Requires MJPG to not choke usbipd)
+    # Safe settings for WSL / Linux
     cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+elif sys.platform == 'win32':
+    # Force DirectShow on Windows (Fixes PyInstaller silent fails)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 else:
-    # Clean settings for Native Windows and macOS
+    # Clean settings for macOS
     cap = cv2.VideoCapture(0)
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
