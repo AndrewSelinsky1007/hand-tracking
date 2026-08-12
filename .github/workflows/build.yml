@@ -2,6 +2,7 @@ name: Build Executables
 
 on:
   push:
+    branches: [ main ]
     tags:
       - 'v*'
   workflow_dispatch:
@@ -27,14 +28,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install pygame opencv-python mediapipe pyinstaller
 
-    # --- WINDOWS BUILD (Uses ';' for PyInstaller path separation) ---
+    # --- WINDOWS BUILD ---
     - name: Build Executables (Windows)
       if: runner.os == 'Windows'
       run: |
         pyinstaller --noconfirm --onedir --windowed demo.py
         pyinstaller --noconfirm --onedir --windowed --add-data "flappybirdbg.png;." --add-data "flappybird.png;." --add-data "toppipe.png;." --add-data "bottompipe.png;." flappybird.py
 
-    # --- MACOS & LINUX BUILD (Uses ':' for PyInstaller path separation) ---
+    # --- MACOS & LINUX BUILD ---
     - name: Build Executables (macOS / Linux)
       if: runner.os != 'Windows'
       run: |
