@@ -9,15 +9,25 @@ import sys
 
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
-# Update image load statements:
+# --- 4. SCALED GAME IMAGES ---
 background_image = pygame.image.load(get_resource_path("flappybirdbg.png"))
+background_image = pygame.transform.scale(background_image, (GAME_WIDTH, GAME_HEIGHT))
+
 bird_image = pygame.image.load(get_resource_path("flappybird.png"))
+bird_image = pygame.transform.scale(bird_image, (bird_width, bird_height))
+
 top_pipe_image = pygame.image.load(get_resource_path("toppipe.png"))
+top_pipe_image = pygame.transform.scale(top_pipe_image, (pipe_width, pipe_height))
+
 bottom_pipe_image = pygame.image.load(get_resource_path("bottompipe.png"))
+bottom_pipe_image = pygame.transform.scale(bottom_pipe_image, (pipe_width, pipe_height))
 
 # --- 1. SCALED GAME VARIABLES ---
 GAME_WIDTH = 1280
