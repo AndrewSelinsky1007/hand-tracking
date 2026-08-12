@@ -3,9 +3,12 @@ import mediapipe as mp
 import pygame
 import sys
 
+# ==========================================
+# 1. SETUP MEDIAPIPE & PYGAME
+# ==========================================
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
-    max_num_hands=2, 
+    max_num_hands=2,  # <--- CHANGED TO 2 HANDS
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 )
@@ -18,47 +21,26 @@ HAND_CONNECTIONS = [
     (13, 17), (0, 17), (17, 18), (18, 19), (19, 20) # Pinky
 ]
 
-pygame.init() 
+pygame.init()
 WIDTH, HEIGHT = 1280, 720
 window = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Hand Tracking")
+pygame.display.set_caption("3D Hand Sensing Sandbox (Multi-Hand)")
 clock = pygame.time.Clock()
 
-# --- SMART CAMERA SCANNER ---
-cap = None
-if sys.platform.startswith('linux'):
-    # Safe settings for WSL / Linux
-    cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-else:
-    # Include MSMF (crucial for modern 2-in-1 arrays) and scan deeper indices
-    backends = [cv2.CAP_ANY, cv2.CAP_MSMF, cv2.CAP_DSHOW] if sys.platform == 'win32' else [cv2.CAP_ANY]
-    
-    for i in range(6):  # Check indices 0 through 5
-        for backend in backends:
-            temp_cap = cv2.VideoCapture(i, backend)
-            if temp_cap.isOpened():
-                ret, _ = temp_cap.read()
-                if ret:
-                    cap = temp_cap
-                    print(f"Success: Connected to camera {i} with backend {backend}")
-                    break
-            temp_cap.release()
-        if cap is not None:
-            break
-
-if cap is None or not cap.isOpened():
-    print("CRITICAL ERROR: Could not find any working cameras!")
-    sys.exit()
-
+# Camera setup using V4L2 and MJPEG
+cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Disable Auto-Exposure
 cap.set(cv2.CAP_PROP_FPS, 30)
 
 font_main = pygame.font.SysFont("Consolas", 22)
 font_large = pygame.font.SysFont("Consolas", 36, bold=True)
 
-# Main Loop
+# ==========================================
+# 2. MAIN INSPECTION LOOP
+# ==========================================
 while True:
     dt = clock.tick(30)
     
@@ -75,7 +57,9 @@ while True:
     if ret:
         frame = cv2.flip(frame, 1)
 
-        # Raw video
+        # ----------------------------------------------------
+        # SHOW SEPARATE RAW CAMERA FEED WINDOW
+        # ----------------------------------------------------
         cv2.imshow("Raw Video Feed", frame)
         cv2.waitKey(1)  # Required to keep OpenCV window responsive
 

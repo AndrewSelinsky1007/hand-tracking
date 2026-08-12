@@ -1,7 +1,6 @@
 import cv2
 import mediapipe as mp
 import pygame
-import sys
 
 class HandTracker:
     def __init__(self, screen_width=1280, screen_height=720, z_threshold=-0.05, show_raw_feed=True):
@@ -27,17 +26,11 @@ class HandTracker:
         ]
 
         # Camera setup
-        # Smart Camera Setup
-        if sys.platform.startswith('linux'):
-            # Safe settings for WSL / Linux
-            self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
-            self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-        else:
-            # Clean settings for Native Windows and macOS
-            self.cap = cv2.VideoCapture(0)
-            
+        self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
         self.cap.set(cv2.CAP_PROP_FPS, 30)
 
         self.has_hand = False
