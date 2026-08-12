@@ -26,7 +26,7 @@ jobs:
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pygame opencv-python mediapipe pyinstaller
+        pip install pygame opencv-python mediapipe==0.10.14 pyinstaller
 
     # --- WINDOWS BUILD ---
     - name: Build Executables (Windows)
