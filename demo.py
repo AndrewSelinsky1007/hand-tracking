@@ -1,9 +1,9 @@
 import cv2
 import mediapipe as mp
+from mediapipe.solutions import hands as mp_hands  # Explicit import for PyInstaller
 import pygame
 import sys
 
-mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
     max_num_hands=2, 
     min_detection_confidence=0.5,
