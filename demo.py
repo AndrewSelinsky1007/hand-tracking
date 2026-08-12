@@ -24,17 +24,27 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Hand Tracking")
 clock = pygame.time.Clock()
 
-# Smart Camera Setup
+# --- SMART CAMERA SCANNER ---
+cap = None
 if sys.platform.startswith('linux'):
     # Safe settings for WSL / Linux
     cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
     cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-elif sys.platform == 'win32':
-    # Force DirectShow on Windows (Fixes PyInstaller silent fails)
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 else:
-    # Clean settings for macOS
-    cap = cv2.VideoCapture(0)
+    # Scan indices 0, 1, and 2 to bypass dead virtual cameras
+    for i in range(3):
+        temp_cap = cv2.VideoCapture(i, cv2.CAP_DSHOW) if sys.platform == 'win32' else cv2.VideoCapture(i)
+        if temp_cap.isOpened():
+            ret, _ = temp_cap.read()
+            if ret:
+                cap = temp_cap
+                print(f"Success: Connected to camera index {i}")
+                break
+        temp_cap.release()
+
+if cap is None or not cap.isOpened():
+    print("CRITICAL ERROR: Could not find any working cameras!")
+    sys.exit()
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
