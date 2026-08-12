@@ -32,15 +32,15 @@ jobs:
     - name: Build Executables (Windows)
       if: runner.os == 'Windows'
       run: |
-        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe demo.py
-        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe --add-data "flappybirdbg.png;." --add-data "flappybird.png;." --add-data "toppipe.png;." --add-data "bottompipe.png;." flappybird.py
+        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands demo.py
+        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands --add-data "flappybirdbg.png;." --add-data "flappybird.png;." --add-data "toppipe.png;." --add-data "bottompipe.png;." flappybird.py
 
     # --- MACOS & LINUX BUILD ---
     - name: Build Executables (macOS / Linux)
       if: runner.os != 'Windows'
       run: |
-        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe demo.py
-        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe --add-data "flappybirdbg.png:." --add-data "flappybird.png:." --add-data "toppipe.png:." --add-data "bottompipe.png:." flappybird.py
+        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands demo.py
+        pyinstaller --noconfirm --onedir --windowed --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands --add-data "flappybirdbg.png:." --add-data "flappybird.png:." --add-data "toppipe.png:." --add-data "bottompipe.png:." flappybird.py
 
     # --- PACKAGE FOR DISTRIBUTION ---
     - name: Archive Builds
