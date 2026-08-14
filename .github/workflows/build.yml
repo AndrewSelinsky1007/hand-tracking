@@ -34,6 +34,7 @@ jobs:
       run: |
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands demo.py
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands --add-data "flappybirdbg.png;." --add-data "flappybird.png;." --add-data "toppipe.png;." --add-data "bottompipe.png;." flappybird.py
+        pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands tetris.py
 
     # --- MACOS & LINUX BUILD ---
     - name: Build Executables (macOS / Linux)
@@ -41,6 +42,7 @@ jobs:
       run: |
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands demo.py
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands --add-data "flappybirdbg.png:." --add-data "flappybird.png:." --add-data "toppipe.png:." --add-data "bottompipe.png:." flappybird.py
+        pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands tetris.py
 
     # --- TEST MACOS EXECUTION ---
     - name: Test macOS Executable Startup
@@ -57,6 +59,7 @@ jobs:
       run: |
         python -c "import shutil; shutil.make_archive('${{ matrix.os }}-FlappyBird', 'zip', 'dist/flappybird')"
         python -c "import shutil; shutil.make_archive('${{ matrix.os }}-HandDemo', 'zip', 'dist/demo')"
+        python -c "import shutil; shutil.make_archive('${{ matrix.os }}-Tetris', 'zip', 'dist/tetris')"
 
     - name: Upload Artifact - Flappy Bird
       uses: actions/upload-artifact@v4
@@ -69,3 +72,9 @@ jobs:
       with:
         name: HandDemo-${{ matrix.os }}
         path: ${{ matrix.os }}-HandDemo.zip
+
+    - name: Upload Artifact - Tetris
+      uses: actions/upload-artifact@v4
+      with:
+        name: Tetris-${{ matrix.os }}
+        path: ${{ matrix.os }}-Tetris.zip
