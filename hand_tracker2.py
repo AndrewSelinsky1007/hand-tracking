@@ -28,6 +28,8 @@ class HandTracker:
         if sys.platform.startswith('linux'):
             self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
             self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        elif sys.platform == 'darwin':
+            self.cap = cv2.VideoCapture(0, cv2.CAP_AVFOUNDATION)
         else:
             self.cap = cv2.VideoCapture(0)
             

@@ -36,30 +36,53 @@ jobs:
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands --add-data "flappybirdbg.png;." --add-data "flappybird.png;." --add-data "toppipe.png;." --add-data "bottompipe.png;." flappybird.py
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands tetris.py
 
-    # --- MACOS & LINUX BUILD ---
-    - name: Build Executables (macOS / Linux)
-      if: runner.os != 'Windows'
+    # --- LINUX BUILD ---
+    - name: Build Executables (Linux)
+      if: runner.os == 'Linux'
       run: |
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands demo.py
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands --add-data "flappybirdbg.png:." --add-data "flappybird.png:." --add-data "toppipe.png:." --add-data "bottompipe.png:." flappybird.py
         pyinstaller --noconfirm --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands tetris.py
 
+    # --- MACOS BUILD (FIXED) ---
+    - name: Build Executables (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        # 1. Use --windowed to create a proper macOS .app bundle
+        pyinstaller --noconfirm --windowed --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands demo.py
+        pyinstaller --noconfirm --windowed --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands --add-data "flappybirdbg.png:." --add-data "flappybird.png:." --add-data "toppipe.png:." --add-data "bottompipe.png:." flappybird.py
+        pyinstaller --noconfirm --windowed --onedir --collect-all mediapipe --hidden-import mediapipe.solutions --hidden-import mediapipe.solutions.hands tetris.py
+
+        # 2. Inject NSCameraUsageDescription into Info.plist so macOS triggers the camera permission prompt
+        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'This game requires camera access to track your hand gestures for gameplay.'" dist/demo.app/Contents/Info.plist
+        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'This game requires camera access to track your hand gestures for gameplay.'" dist/flappybird.app/Contents/Info.plist
+        /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'This game requires camera access to track your hand gestures for gameplay.'" dist/tetris.app/Contents/Info.plist
+
     # --- TEST MACOS EXECUTION ---
     - name: Test macOS Executable Startup
       if: runner.os == 'macOS'
       run: |
-        # Run the executable in the background, wait 5 seconds, then kill it cleanly
-        ./dist/demo/demo &
+        # Run the executable directly from inside the newly created .app bundle
+        ./dist/demo.app/Contents/MacOS/demo &
         PID=$!
         sleep 5
         kill $PID || true
 
     # --- PACKAGE FOR DISTRIBUTION ---
-    - name: Archive Builds
+    - name: Archive Builds (Windows & Linux)
+      if: runner.os != 'macOS'
       run: |
         python -c "import shutil; shutil.make_archive('${{ matrix.os }}-FlappyBird', 'zip', 'dist/flappybird')"
         python -c "import shutil; shutil.make_archive('${{ matrix.os }}-HandDemo', 'zip', 'dist/demo')"
         python -c "import shutil; shutil.make_archive('${{ matrix.os }}-Tetris', 'zip', 'dist/tetris')"
+
+    - name: Archive Builds (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        # macOS needs to zip the .app directory structure specifically, not just the contents of a folder
+        python -c "import shutil; shutil.make_archive('${{ matrix.os }}-FlappyBird', 'zip', 'dist', 'flappybird.app')"
+        python -c "import shutil; shutil.make_archive('${{ matrix.os }}-HandDemo', 'zip', 'dist', 'demo.app')"
+        python -c "import shutil; shutil.make_archive('${{ matrix.os }}-Tetris', 'zip', 'dist', 'tetris.app')"
 
     - name: Upload Artifact - Flappy Bird
       uses: actions/upload-artifact@v4

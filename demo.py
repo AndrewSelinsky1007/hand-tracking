@@ -3,21 +3,18 @@ import mediapipe as mp
 import pygame
 import sys
 
-# ==========================================
-# 1. SETUP MEDIAPIPE & PYGAME
-# ==========================================
 mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(
-    max_num_hands=2,  # <--- CHANGED TO 2 HANDS
+    max_num_hands=2,
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 )
 
 HAND_CONNECTIONS = [
-    (0, 1), (1, 2), (2, 3), (3, 4),        # Thumb
-    (0, 5), (5, 6), (6, 7), (7, 8),        # Index
-    (5, 9), (9, 10), (10, 11), (11, 12),   # Middle
-    (9, 13), (13, 14), (14, 15), (15, 16), # Ring
+    (0, 1), (1, 2), (2, 3), (3, 4),         # Thumb
+    (0, 5), (5, 6), (6, 7), (7, 8),         # Index
+    (5, 9), (9, 10), (10, 11), (11, 12),    # Middle
+    (9, 13), (13, 14), (14, 15), (15, 16),  # Ring
     (13, 17), (0, 17), (17, 18), (18, 19), (19, 20) # Pinky
 ]
 
@@ -27,27 +24,20 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("3D Hand Sensing Sandbox (Multi-Hand)")
 clock = pygame.time.Clock()
 
-# Camera setup using V4L2 and MJPEG
-cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
-cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+cap = cv2.VideoCapture(0, cv2.CAP_AVFOUNDATION)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1) # Disable Auto-Exposure
-cap.set(cv2.CAP_PROP_FPS, 30)
 
-font_main = pygame.font.SysFont("Consolas", 22)
-font_large = pygame.font.SysFont("Consolas", 36, bold=True)
+font_main = pygame.font.SysFont("Menlo", 22)
+font_large = pygame.font.SysFont("Menlo", 36, bold=True)
 
-# ==========================================
-# 2. MAIN INSPECTION LOOP
-# ==========================================
 while True:
     dt = clock.tick(30)
     
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             cap.release()
-            cv2.destroyAllWindows()  # Close OpenCV raw video window
+            cv2.destroyAllWindows() 
             pygame.quit()
             sys.exit()
 
@@ -57,9 +47,6 @@ while True:
     if ret:
         frame = cv2.flip(frame, 1)
 
-        # ----------------------------------------------------
-        # SHOW SEPARATE RAW CAMERA FEED WINDOW
-        # ----------------------------------------------------
         cv2.imshow("Raw Video Feed", frame)
         cv2.waitKey(1)  # Required to keep OpenCV window responsive
 
@@ -67,7 +54,6 @@ while True:
         results = hands.process(rgb_frame)
 
         if results.multi_hand_landmarks:
-            # LOOP THROUGH ALL DETECTED HANDS (UP TO 2)
             for hand_idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
                 landmarks = hand_landmarks.landmark
 
@@ -83,14 +69,12 @@ while True:
 
                 for i, lm in enumerate(landmarks):
                     px, py = pts[i]
-                    # Keep the size scaling based on Z-depth, but use a static color
                     node_radius = max(4, int(14 - (lm.z * 60)))
                     node_color = (0, 255, 150) 
 
                     pygame.draw.circle(window, node_color, (px, py), node_radius)
                     pygame.draw.circle(window, (255, 255, 255), (px, py), 2)
 
-                # DYNAMIC HUD OFFSET (Pushes Hand 2's text down by 200 pixels)
                 y_offset = hand_idx * 200
 
                 state_str = f"HAND {hand_idx + 1}: DETECTED"

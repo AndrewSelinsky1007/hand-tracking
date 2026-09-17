@@ -25,12 +25,10 @@ class HandTracker:
             (13, 17), (0, 17), (17, 18), (18, 19), (19, 20) 
         ]
 
-        # Camera setup
-        self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
-        self.cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+        # Camera setup (macOS AVFoundation backend)
+        self.cap = cv2.VideoCapture(0, cv2.CAP_AVFOUNDATION)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        self.cap.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
         self.cap.set(cv2.CAP_PROP_FPS, 30)
 
         self.has_hand = False
@@ -76,7 +74,7 @@ class HandTracker:
         for p1, p2 in self.connections:
             pygame.draw.line(surface, bone_color, self.pts[p1], self.pts[p2], bone_thickness)
 
-        # Draw identical joints (no yellow circles)
+        # Draw identical joints
         for px, py in self.pts:
             pygame.draw.circle(surface, node_color, (px, py), node_radius)
             pygame.draw.circle(surface, (255, 255, 255), (px, py), 2)

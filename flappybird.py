@@ -9,7 +9,6 @@ from hand_tracker import HandTracker
 def get_resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
@@ -104,9 +103,9 @@ def draw():
         tracker.is_engaged = True 
         tracker.draw(window) 
     
-    # --- HUD RENDERING ---
-    text_font = pygame.font.SysFont("Consolas", 60, bold=True)
-    combo_font = pygame.font.SysFont("Consolas", 40, bold=True)
+    # --- HUD RENDERING (macOS Native Fonts) ---
+    text_font = pygame.font.SysFont("Menlo", 60, bold=True)
+    combo_font = pygame.font.SysFont("Menlo", 40, bold=True)
     
     if game_over:
         go_str = f"Game Over! Final Score: {int(score)}"
@@ -237,11 +236,10 @@ def move():
                 break 
                 
         if collision_detected:
-            
             # --- START GAME ON FIRST HIT ---
             if not game_started:
                 game_started = True
-                last_pipe_time = pygame.time.get_ticks() # Reset pipe spawn timer so they don't pile up
+                last_pipe_time = pygame.time.get_ticks()
             else:
                 if pending_score > 0:
                     if consecutive_pipes >= 2:

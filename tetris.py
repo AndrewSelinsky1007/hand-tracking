@@ -11,10 +11,10 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Tetris")
 clock = pygame.time.Clock()
 
-# Fonts for Polish
-font_large = pygame.font.SysFont("Consolas", 48, bold=True)
-font_medium = pygame.font.SysFont("Consolas", 24, bold=True)
-font_small = pygame.font.SysFont("Consolas", 18)
+# Fonts for Polish (Native macOS Font: Menlo)
+font_large = pygame.font.SysFont("Menlo", 48, bold=True)
+font_medium = pygame.font.SysFont("Menlo", 24, bold=True)
+font_small = pygame.font.SysFont("Menlo", 18)
 
 # Tetris Grid Constants
 BLOCK_SIZE = 30
@@ -25,13 +25,13 @@ BOARD_X = (WIDTH - BOARD_WIDTH) // 2
 BOARD_Y = (HEIGHT - BOARD_HEIGHT) // 2
 
 SHAPES = [
-    [[1, 1, 1, 1]],                            # I
-    [[1, 1], [1, 1]],                          # O
-    [[0, 1, 0], [1, 1, 1]],                    # T
-    [[1, 0, 0], [1, 1, 1]],                    # L
-    [[0, 0, 1], [1, 1, 1]],                    # J
-    [[0, 1, 1], [1, 1, 0]],                    # S
-    [[1, 1, 0], [0, 1, 1]]                     # Z
+    [[1, 1, 1, 1]],                             # I
+    [[1, 1], [1, 1]],                           # O
+    [[0, 1, 0], [1, 1, 1]],                     # T
+    [[1, 0, 0], [1, 1, 1]],                     # L
+    [[0, 0, 1], [1, 1, 1]],                     # J
+    [[0, 1, 1], [1, 1, 0]],                     # S
+    [[1, 1, 0], [0, 1, 1]]                      # Z
 ]
 
 COLORS = [
@@ -368,13 +368,11 @@ def main():
 
         # 6. STATE: GAME OVER (Overlay & Spacebar Restart)
         if game_state == "GAME_OVER":
-            # Dim the screen
             overlay = pygame.Surface((WIDTH, HEIGHT))
             overlay.set_alpha(180)
             overlay.fill((0, 0, 0))
             window.blit(overlay, (0, 0))
             
-            # Text
             go_text = font_large.render("GAME OVER", True, (255, 50, 50))
             window.blit(go_text, (WIDTH//2 - go_text.get_width()//2, HEIGHT//2 - 120))
             
@@ -384,7 +382,6 @@ def main():
             restart_prompt = font_medium.render("PRESS SPACE TO RESTART", True, (200, 200, 200))
             window.blit(restart_prompt, (WIDTH//2 - restart_prompt.get_width()//2, HEIGHT//2 + 30))
 
-            # Restart Logic
             keys = pygame.key.get_pressed()
             if keys[pygame.K_SPACE]:
                 board = create_grid()
@@ -409,8 +406,6 @@ def main():
         
         if is_grabbed and tracker.has_hand and game_state == "PLAYING":
             visual_hand_x = BOARD_X + piece_x * BLOCK_SIZE + grab_dx
-            dy = tracker.hand_y - initial_grab_y
-            virtual_hand_y = initial_grab_y + (dy * 1.8) if dy > 0 else tracker.hand_y
             visual_hand_y = BOARD_Y + piece_y * BLOCK_SIZE + grab_dy
             
             render_offset_x = visual_hand_x - tracker.hand_x
