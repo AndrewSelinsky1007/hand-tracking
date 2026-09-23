@@ -5,7 +5,7 @@ import sys
 import math
 
 class HandTracker:
-    def __init__(self, screen_width=1280, screen_height=720, show_raw_feed=True):
+    def __init__(self, screen_width=1280, screen_height=720, show_raw_feed=False):
         self.width = screen_width
         self.height = screen_height
         self.show_raw_feed = show_raw_feed

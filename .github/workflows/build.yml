@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
+        os: [windows-latest, macos-13, ubuntu-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -57,6 +57,11 @@ jobs:
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'This game requires camera access to track your hand gestures for gameplay.'" dist/demo.app/Contents/Info.plist
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'This game requires camera access to track your hand gestures for gameplay.'" dist/flappybird.app/Contents/Info.plist
         /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'This game requires camera access to track your hand gestures for gameplay.'" dist/tetris.app/Contents/Info.plist
+
+        # 3. Re-sign the apps so macOS doesn't silently block the camera!
+        codesign --force --deep --sign - dist/demo.app
+        codesign --force --deep --sign - dist/flappybird.app
+        codesign --force --deep --sign - dist/tetris.app
 
     # --- TEST MACOS EXECUTION ---
     - name: Test macOS Executable Startup

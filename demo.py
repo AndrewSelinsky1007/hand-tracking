@@ -24,7 +24,15 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("3D Hand Sensing Sandbox (Multi-Hand)")
 clock = pygame.time.Clock()
 
-cap = cv2.VideoCapture(0, cv2.CAP_AVFOUNDATION)
+# --- SMART CROSS-PLATFORM CAMERA SETUP ---
+if sys.platform.startswith('linux'):
+    cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+elif sys.platform == 'darwin':
+    cap = cv2.VideoCapture(0, cv2.CAP_AVFOUNDATION)
+else:
+    cap = cv2.VideoCapture(0)
+
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
@@ -37,7 +45,6 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             cap.release()
-            cv2.destroyAllWindows() 
             pygame.quit()
             sys.exit()
 
@@ -46,9 +53,6 @@ while True:
 
     if ret:
         frame = cv2.flip(frame, 1)
-
-        cv2.imshow("Raw Video Feed", frame)
-        cv2.waitKey(1)  # Required to keep OpenCV window responsive
 
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         results = hands.process(rgb_frame)

@@ -77,7 +77,7 @@ pipe_halves_passed = 0
 display_combo_pipes = 0
 display_combo_score = 0
 
-tracker = HandTracker(screen_width=GAME_WIDTH, screen_height=GAME_HEIGHT, z_threshold=-0.05, show_raw_feed=True)
+tracker = HandTracker(screen_width=GAME_WIDTH, screen_height=GAME_HEIGHT, z_threshold=-0.05, show_raw_feed=False)
 prev_pts = []
 
 # --- HELPER FUNCTION: TEXT WITH OUTLINE ---
@@ -119,6 +119,12 @@ def draw():
         hi_x = GAME_WIDTH // 2 - hi_surf.get_width() // 2
         hi_y = go_y + 80
         draw_text_outlined(window, hi_str, combo_font, "gold", "black", hi_x, hi_y)
+        
+        restart_str = "PRESS SPACE TO RESTART"
+        restart_surf = combo_font.render(restart_str, True, (200, 200, 200))
+        restart_x = GAME_WIDTH // 2 - restart_surf.get_width() // 2
+        restart_y = hi_y + 60
+        draw_text_outlined(window, restart_str, combo_font, (200, 200, 200), "black", restart_x, restart_y)
         
     else:
         hi_str = f"High Score: {int(high_score)}"
@@ -367,7 +373,6 @@ while True:
                 last_pipe_time = pygame.time.get_ticks()
                 next_pipe_delay = 2500
 
-    # Pipes only spawn when game is active
     if game_started and current_time - last_pipe_time > next_pipe_delay and not game_over:
         create_pipes()
         last_pipe_time = current_time

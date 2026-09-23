@@ -11,12 +11,10 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Tetris")
 clock = pygame.time.Clock()
 
-# Fonts for Polish (Native macOS Font: Menlo)
 font_large = pygame.font.SysFont("Menlo", 48, bold=True)
 font_medium = pygame.font.SysFont("Menlo", 24, bold=True)
 font_small = pygame.font.SysFont("Menlo", 18)
 
-# Tetris Grid Constants
 BLOCK_SIZE = 30
 COLS, ROWS = 10, 20
 BOARD_WIDTH = COLS * BLOCK_SIZE
@@ -39,7 +37,7 @@ COLORS = [
     (255, 165, 0), (0, 0, 255), (0, 255, 0), (255, 0, 0)
 ]
 
-FLASH_COLORS = [(255, 50, 50), (255, 165, 0), (255, 255, 255)] # Red, Orange, White
+FLASH_COLORS = [(255, 50, 50), (255, 165, 0), (255, 255, 255)]
 
 def get_new_piece():
     shape = random.choice(SHAPES)
@@ -68,7 +66,7 @@ def clear_lines(board):
     return new_board, lines_cleared
 
 def main():
-    tracker = HandTracker(screen_width=WIDTH, screen_height=HEIGHT, show_raw_feed=True)
+    tracker = HandTracker(screen_width=WIDTH, screen_height=HEIGHT, show_raw_feed=False)
     
     board = create_grid()
     next_pieces = [get_new_piece() for _ in range(3)]
@@ -76,8 +74,7 @@ def main():
     piece_x = COLS // 2 - len(current_shape[0]) // 2
     piece_y = 0
 
-    # Game State Variables
-    game_state = "PLAYING" # States: PLAYING, LINE_CLEAR, GAME_OVER
+    game_state = "PLAYING"
     score = 0
     hi_score = 0
     total_lines = 0
@@ -100,7 +97,6 @@ def main():
     grab_scale_y = 100.0
     prev_is_fist = False
 
-    # Animation Variables
     full_lines = []
     line_clear_start_time = 0
     level_up_start_time = -3000
@@ -204,13 +200,11 @@ def main():
                 if check_collision(board, current_shape, (piece_x, piece_y)):
                     piece_y -= 1
                     
-                    # Lock piece into board
                     for cy, row in enumerate(current_shape):
                         for cx, cell in enumerate(row):
                             if cell:
                                 board[piece_y + cy][piece_x + cx] = current_color
                     
-                    # Check for completed lines to trigger animation
                     full_lines = [i for i, row in enumerate(board) if (0, 0, 0) not in row]
                     
                     if full_lines:
@@ -218,7 +212,6 @@ def main():
                         line_clear_start_time = current_time
                         is_grabbed = False
                     else:
-                        # Spawn Next Piece Immediately
                         current_shape, current_color = next_pieces.pop(0)
                         next_pieces.append(get_new_piece())
                         piece_x = COLS // 2 - len(current_shape[0]) // 2
@@ -226,7 +219,6 @@ def main():
                         can_hold = True 
                         is_grabbed = False 
                         
-                        # Game Over Check
                         if check_collision(board, current_shape, (piece_x, piece_y)):
                             game_state = "GAME_OVER"
                             if score > hi_score:
@@ -235,17 +227,17 @@ def main():
                 fall_time = 0
 
         # ==========================================
-        # STATE: LINE CLEAR (Animation Pause)
+        # STATE: LINE CLEAR
         # ==========================================
         elif game_state == "LINE_CLEAR":
-            if current_time - line_clear_start_time >= 1000: # 1 Second passed
+            if current_time - line_clear_start_time >= 1000:
                 board, cleared = clear_lines(board)
                 total_lines += cleared
                 
                 old_level = level
                 level = (total_lines // 5) + 1 
                 if level > old_level:
-                    level_up_start_time = current_time # Trigger Level Up Flash
+                    level_up_start_time = current_time
                 
                 fall_speed = max(100, 600 - ((level - 1) * 50)) 
                 
@@ -258,7 +250,6 @@ def main():
                 if score > hi_score:
                     hi_score = score
 
-                # Spawn Next Piece
                 current_shape, current_color = next_pieces.pop(0)
                 next_pieces.append(get_new_piece())
                 piece_x = COLS // 2 - len(current_shape[0]) // 2
@@ -282,7 +273,6 @@ def main():
             for x, cell in enumerate(row):
                 if cell != (0, 0, 0):
                     draw_c = cell
-                    # Override color if this line is currently flashing
                     if game_state == "LINE_CLEAR" and y in full_lines:
                         color_idx = (current_time // 100) % 3
                         draw_c = FLASH_COLORS[color_idx]
@@ -290,7 +280,7 @@ def main():
                     pygame.draw.rect(window, draw_c, 
                                      (BOARD_X + x*BLOCK_SIZE, BOARD_Y + y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1))
 
-        # 2. DRAW CURRENT PIECE (Hide during line clear)
+        # 2. DRAW CURRENT PIECE
         if game_state == "PLAYING":
             draw_color = (255, 255, 255) if is_grabbed else current_color
             for y, row in enumerate(current_shape):
@@ -299,7 +289,7 @@ def main():
                         pygame.draw.rect(window, draw_color, 
                                          (BOARD_X + (piece_x + x)*BLOCK_SIZE, BOARD_Y + (piece_y + y)*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1))
 
-        # 3. DRAW NEXT BOX (Top Left)
+        # 3. DRAW NEXT BOX
         next_x, next_y = BOARD_X - 160, BOARD_Y
         pygame.draw.rect(window, (40, 44, 53), (next_x, next_y, 140, 320))
         next_title = font_medium.render("NEXT", True, (200, 200, 200))
@@ -314,7 +304,7 @@ def main():
                         pygame.draw.rect(window, n_color, 
                                          (offset_x + x*BLOCK_SIZE, offset_y + y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1))
 
-        # 4. DRAW HOLD BOX (Bottom Left)
+        # 4. DRAW HOLD BOX
         hold_x, hold_y = BOARD_X - 160, BOARD_Y + 340
         pygame.draw.rect(window, (40, 44, 53), (hold_x, hold_y, 140, 140))
         hold_title = font_medium.render("HOLD", True, (200, 200, 200))
@@ -329,32 +319,28 @@ def main():
                         pygame.draw.rect(window, hold_color, 
                                          (offset_x + x*BLOCK_SIZE, offset_y + y*BLOCK_SIZE, BLOCK_SIZE-1, BLOCK_SIZE-1))
 
-        # 5. DRAW STATS UI (Top Right)
+        # 5. DRAW STATS UI
         stats_x, stats_y = BOARD_X + BOARD_WIDTH + 20, BOARD_Y
         pygame.draw.rect(window, (40, 44, 53), (stats_x, stats_y, 200, 310))
         
-        # Score
         score_title = font_small.render("SCORE", True, (150, 150, 150))
         score_val = font_large.render(f"{score:06d}", True, (255, 255, 255))
         window.blit(score_title, (stats_x + 15, stats_y + 15))
         window.blit(score_val, (stats_x + 15, stats_y + 35))
         
-        # Hi-Score
         hi_title = font_small.render("HI-SCORE", True, (150, 150, 150))
-        hi_val = font_medium.render(f"{hi_score:06d}", True, (255, 215, 0)) # Gold Color
+        hi_val = font_medium.render(f"{hi_score:06d}", True, (255, 215, 0))
         window.blit(hi_title, (stats_x + 15, stats_y + 95))
         window.blit(hi_val, (stats_x + 15, stats_y + 115))
 
-        # Lines
         lines_title = font_small.render("LINES", True, (150, 150, 150))
         lines_val = font_medium.render(f"{total_lines}", True, (255, 255, 255))
         window.blit(lines_title, (stats_x + 15, stats_y + 165))
         window.blit(lines_val, (stats_x + 15, stats_y + 185))
         
-        # Level (Flashing Animation synchronized for Title and Value)
         if current_time - level_up_start_time < 3000:
             c_idx = (current_time // 100) % 3
-            level_flash_colors = [(255, 255, 255), (255, 255, 0), (255, 165, 0)]  # White, Yellow, Orange
+            level_flash_colors = [(255, 255, 255), (255, 255, 0), (255, 165, 0)]
             level_color = level_flash_colors[c_idx]
             level_title_color = level_color
         else:
@@ -366,7 +352,7 @@ def main():
         window.blit(level_title, (stats_x + 15, stats_y + 235))
         window.blit(level_val, (stats_x + 15, stats_y + 255))
 
-        # 6. STATE: GAME OVER (Overlay & Spacebar Restart)
+        # 6. STATE: GAME OVER
         if game_state == "GAME_OVER":
             overlay = pygame.Surface((WIDTH, HEIGHT))
             overlay.set_alpha(180)
